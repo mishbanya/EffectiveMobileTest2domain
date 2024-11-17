@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "EffectiveMobileTest2domain"
 include(":domainApp")
+includeBuild("EffectiveMobileTest2data")
