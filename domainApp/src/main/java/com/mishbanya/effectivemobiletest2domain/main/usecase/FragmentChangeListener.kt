@@ -1,11 +1,8 @@
-package com.mishbanya.effectivemobiletest.domain.main.usecase
+package com.mishbanya.effectivemobiletest2domain.main.usecase
 
 interface FragmentChangeListener {
-    fun onSearchClicked()
+    fun onMainClicked()
+    fun onBackToMainClicked()
     fun onFavoritesClicked()
-    fun onCallbacksClicked()
-    fun onMessagesClicked()
     fun onProfileClicked()
-    fun onVacancyClicked()
-    fun onMoreClicked()
 }
