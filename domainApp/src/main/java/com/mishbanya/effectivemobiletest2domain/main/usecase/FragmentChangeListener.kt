@@ -5,4 +5,5 @@ interface FragmentChangeListener {
     fun onBackToMainClicked()
     fun onFavoritesClicked()
     fun onProfileClicked()
+    fun onCourseClicked(position: Int)
 }

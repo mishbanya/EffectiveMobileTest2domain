@@ -65,5 +65,7 @@ dependencies {
     kapt(libs.hilt.android.compiler)
 
     implementation (libs.kotlin.stdlib)
+
+
     implementation("com.mishbanya:dataApp")
 }
