@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    group = "com.mishbanya"
+    group = "com.mishbanya.domain"
     namespace = "com.mishbanya.effectivemobiletest2domain"
     compileSdk = 34
 
@@ -67,5 +67,5 @@ dependencies {
     implementation (libs.kotlin.stdlib)
 
 
-    implementation("com.mishbanya:dataApp")
+    implementation("com.mishbanya.data:dataApp")
 }
