@@ -15,10 +15,10 @@ class CoursesSaverRepositoryImpl@Inject constructor(
     override fun saveCourses(courses: List<CourseModel>?): Boolean {
         if (courses != null) {
             if (courses.isEmpty()) return false
-            Log.d("SharedPreferences", "Courses get successful.")
+            Log.d("SharedPreferences", "Trying to save...")
             val jsonVacancyList = gson.toJson(courses)
             return try {
-                Log.d("SharedPreferences", "Saving Courses")
+                Log.d("SharedPreferences", "Saving Courses: ${courses.map { it.isFavorite }}")
                 with(sharedPreferences.edit()) {
                     putString(ACCESS_TOKEN_KEY, jsonVacancyList)
                     apply()

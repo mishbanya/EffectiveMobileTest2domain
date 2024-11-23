@@ -14,11 +14,15 @@ class ChangeCourseFavoritenessRepositoryImpl@Inject constructor(
         if (courses != null) {
             for(course in courses){
                 if(course.id == id) {
+                    println(course.isFavorite)
                     course.isFavorite = !course.isFavorite
+                    println(course.isFavorite)
+                    println(course.title)
                     break
                 }
             }
         }
+        println("changed")
         coursesSaverRepository.saveCourses(courses)
     }
 }

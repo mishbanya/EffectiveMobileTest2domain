@@ -16,7 +16,7 @@ class CoursesGetterRepositoryImpl @Inject constructor(
     override fun getCourses(): List<CourseModel>? {
         val jsonCoursesList = sharedPreferences.getString(ACCESS_TOKEN_KEY, null)
         return if (jsonCoursesList != null) {
-            Log.d("SharedPreferences", "Courses get successful.")
+            Log.d("SharedPreferences", "Courses get successful: $jsonCoursesList")
             val type = object : TypeToken<List<CourseModel>>() {}.type
             gson.fromJson(jsonCoursesList, type)
         } else {

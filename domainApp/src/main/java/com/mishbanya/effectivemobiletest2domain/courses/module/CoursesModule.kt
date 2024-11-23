@@ -64,7 +64,7 @@ object CoursesModule {
     fun provideCoursesRepositoryImpl(
         coursesService: ICoursesService
     ): ICoursesRepository {
-        Log.d("Hilt", "Creating ChangeCourseFavoritenessRepositoryImpl client instance")
+        Log.d("Hilt", "Creating CoursesRepositoryImpl client instance")
         return CoursesRepositoryImpl(
             coursesService
         )

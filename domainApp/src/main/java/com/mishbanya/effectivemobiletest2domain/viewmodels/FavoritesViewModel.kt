@@ -9,6 +9,10 @@ import com.mishbanya.effectivemobiletest2domain.courses.repository.ICoursesGette
 import com.mishbanya.effectivemobiletest2domain.courses.repository.ICoursesRepository
 import com.mishbanya.effectivemobiletest2domain.courses.repository.ICoursesSaverRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,22 +24,21 @@ class FavoritesViewModel @Inject constructor(
 ) :ViewModel() {
 
     private val _courses = MutableLiveData<List<CourseModel>?>()
+    private val disposables = CompositeDisposable()
 
     val courses: MutableLiveData<List<CourseModel>?>
         get() = _courses
 
     private val _favoriteCourses = MutableLiveData<List<CourseModel>?>()
 
-    val favoriteVacancies: MutableLiveData<List<CourseModel>?>
+    val favoriteCourses: MutableLiveData<List<CourseModel>?>
         get() = _favoriteCourses
-    private fun setResponse(vacancies: List<CourseModel>?) {
-        if (vacancies != null) {
-            _courses.value = vacancies
-            _favoriteCourses.value = vacancies.filter { it.isFavorite }
-            if (_courses.value != tryGettingCoursesFromSP()) {
-                if (saveCourses(vacancies)) {
-                    Log.d("CoursesSaverRepository", "courses saved")
-                }
+    private fun setResponse(responseData: List<CourseModel>?) {
+        if (_courses.value.isNullOrEmpty()) {
+            _courses.value = responseData
+            _favoriteCourses.value = courses.value?.filter { it.isFavorite }
+            if(saveCourses(responseData)){
+                Log.d("CoursesSaverRepository", "courses saved")
             }
         }
     }
@@ -44,17 +47,42 @@ class FavoritesViewModel @Inject constructor(
             _courses.value = courses
         }
     }
-    private fun tryGettingCoursesFromSP(): List<CourseModel>? {
-        val recievedVacancies = getCoursesFromSP()
-        if (!recievedVacancies.isNullOrEmpty()) {
-            return recievedVacancies
+    private fun tryGettingCoursesFromSP(): Boolean {
+        val recievedCourses = getCoursesFromSP()
+        if (!recievedCourses.isNullOrEmpty()) {
+            setResponse(recievedCourses)
+            return true
+        }else {
+            return false
         }
-        return null
     }
 
     fun getCourses(){
-        if(tryGettingCoursesFromSP() == null)
-            setResponse(coursesRepository.getCourses(4))
+        if(tryGettingCoursesFromSP()){
+            return
+        }
+        disposables.clear()
+        val disposable = coursesRepository.getCourses(4)
+            ?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe({ response ->
+                if (response.isSuccessful) {
+                    response.body()?.let { setResponse(it.courses) }
+                } else {
+                    Log.e("getOffersAndVacancies", "getOffersAndVacancies failed: ${response.code()}")
+                    setResponse(null)
+                }
+            }, { error ->
+                Log.e("getOffersAndVacancies", "getOffersAndVacancies failed", error)
+
+                if (error is HttpException) {
+                    Log.d("getOffersAndVacancies", "HTTP Error: ${error.code()}")
+                } else {
+                    Log.d("getOffersAndVacancies", "Error: ${error.message}")
+                }
+                setResponse(null)
+            })
+        disposables.add(disposable!!)
     }
     private fun saveCourses(courses: List<CourseModel>?): Boolean {
         return coursesSaverRepositoryImpl.saveCourses(courses)
@@ -66,5 +94,8 @@ class FavoritesViewModel @Inject constructor(
         val coursesList = _courses.value?.toList()
         coursesList?.get(position)?.let { changeCourseFavoritenessRepository.changeFavoriteness(it.id) }
         setCourses(this.getCoursesFromSP())
+    }
+    override fun onCleared() {
+        disposables.dispose()
     }
 }
